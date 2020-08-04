@@ -1,3 +1,5 @@
+# import thư viện
+
 import pyttsx3
 import speech_recognition as sr
 import datetime
@@ -9,7 +11,12 @@ import smtplib
 
 print("Initializing Javis")
 
+
+# đặt tên chủ nhân
 MASTER = "Potter"
+
+
+# tạo đối tượng
 engine = pyttsx3.init('sapi5')
 voices = engine.getProperty('voices')
 engine.setProperty('voice', voices[0].id)
@@ -18,6 +25,7 @@ def speak(text):
     engine.say(text)
     engine.runAndWait()
 
+# chào theo khung giờ
 def wishMe():
     hour = int(datetime.datetime.now().hour)
 
@@ -27,12 +35,16 @@ def wishMe():
          speak("Good afternoon" + MASTER)
     else:
          speak("Good evening" + MASTER)
-    # speak("I am Jarvis. How may I help you?")
+    speak("I am your Assistant. How may I help you?")
 
+# function thu dữ diệu và phân tích đầu vào
 def takeCommand():
     r = sr.Recognizer()
+    # sử dụng  micrô mặc địn làm nguồn âm thanh
     with sr.Microphone() as source:
         print("Listening...")
+
+        # trích xuất thành dữ liệu âm thanh
         audio = r.listen(source)
 
     try:
@@ -46,6 +58,8 @@ def takeCommand():
         query = None
     return query
 
+
+# chức năng gửi email
 def sendEmail(to, content):
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.ehlo()
@@ -60,49 +74,55 @@ speak("initalizing Jarvis.....")
 wishMe()
 query = takeCommand()
 
+if query:
+    # chức năng tìm kiếm từ điển
+    if 'wikipedia' in query.lower():
+        speak('Searching wikipedia.....')
+        query = query.replace("wikipedia", "")
+        results = wikipedia.summary(query, sentences=2)
+        print(results)
+        speak(results)
+    # mở tab youtube
+    elif 'open youtube' in query.lower():
+        # webbrowser.open_new_tab("youtube.com")
+        url = "youtube.com"
 
-if 'wikipedia' in query.lower():
-    speak('Searching wikipedia.....')
-    query = query.replace("wikipedia", "")
-    results = wikipedia.summary(query, sentences =2)
-    print(results)
-    speak(results)
+        chrome_path = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s'
+        webbrowser.get(chrome_path).open(url)
 
-elif 'open youtube' in query.lower():
-    # webbrowser.open_new_tab("youtube.com")
-    url= "youtube.com"
+    # mở tab google
+    elif 'open google' in query.lower():
+        # webbrowser.open_new_tab("youtube.com")
+        url = "google.com"
 
-    chrome_path = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s'
-    webbrowser.get(chrome_path).open(url)
-elif 'open google' in query.lower():
-    # webbrowser.open_new_tab("youtube.com")
-    url= "google.com"
+        chrome_path = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s'
+        webbrowser.get(chrome_path).open(url)
 
-    chrome_path = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe %s'
-    webbrowser.get(chrome_path).open(url)
+    # mở thư mục music
+    elif 'play music' in query.lower():
+        songs_dir = "C:\\Users\\ALIENWARE\\Downloads\\Music"
+        songs = os.listdir(songs_dir)
+        print(songs)
+        os.startfile(os.path.join(songs_dir, songs[0]))
 
-elif 'play music' in query.lower():
-    songs_dir = "C:\\Users\\nguye\\Downloads\\music"
-    songs = os.listdir(songs_dir)
-    print(songs)
-    os.startfile(os.path.join(songs_dir, songs[0]))
+    # Ngày, giờ
+    elif 'what time' in query.lower():
+        strTime = datetime.datetime.now().strftime("%H:%M:%S")
+        speak(f"{MASTER} thr time is {strTime}")
+    # open VS code
+    elif 'open code' in query.lower():
+        codePath = "D:\\Microsoft VS Code\\Code.exe"
+        os.startfile(codePath)
 
-elif 'the time' in query.lower():
-    strTime = datetime.datetime.now().strftime("%H:%M:%S")
-    speak(f"{MASTER} thr time is {strTime}")
+    # gửi email đến địa chỉ cụ thể
+    elif 'email to potter' in query.lower():
+        try:
+            speak("what should I send")
+            content = takeCommand()
+            to = "dpbao.17it3@sict.udn.vn"
+            sendEmail(to, content)
+            speak("Email has been sent successfully")
 
-elif 'open code' in query.lower():
-    codePath = "C:\\Users\\nguye\\AppData\\Local\\Programs\\Microsoft VS Code\\Code.exe"
-    os.startfile(codePath)
-
-elif 'email to potter' in query.lower():
-    try:
-        speak("what should I send")
-        content = takeCommand()
-        to = "dpbao.17it3@sict.udn.vn"
-        sendEmail(to, content)
-        speak("Email has been sent successfully")
-
-    except Exception as e:
-        print(e)
+        except Exception as e:
+            print(e)
 
